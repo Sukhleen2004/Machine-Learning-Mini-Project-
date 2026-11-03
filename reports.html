@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Student Prediction Reports</h1>
+
+<p class="subtitle">
+    View all previously generated student predictions.
+</p>
+
+<div class="table-box">
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Student Name</th>
+            <th>Study Hours</th>
+            <th>Attendance</th>
+            <th>Previous Marks</th>
+            <th>Assignment</th>
+            <th>Sleep Hours</th>
+            <th>Predicted Marks</th>
+            <th>Performance</th>
+            <th>Model</th>
+            <th>Date</th>
+        </tr>
+
+        {% for item in records %}
+
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.student_name }}</td>
+            <td>{{ item.study_hours }}</td>
+            <td>{{ item.attendance }}%</td>
+            <td>{{ item.previous_marks }}</td>
+            <td>{{ item.assignment_score }}</td>
+            <td>{{ item.sleep_hours }}</td>
+            <td>{{ item.predicted_marks }}</td>
+            <td>{{ item.performance }}</td>
+            <td>{{ item.model_used }}</td>
+            <td>{{ item.created_at }}</td>
+        </tr>
+
+        {% else %}
+
+        <tr>
+            <td colspan="11">No reports available.</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+{% endblock %}

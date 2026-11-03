@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Student Performance Dashboard</h1>
+
+<p class="subtitle">
+    Machine Learning Based Student Performance Analysis
+</p>
+
+<div class="cards">
+    <div class="card">
+        <h3>Total Students in Dataset</h3>
+        <h2>{{ total_students | default(0, true) }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Average Dataset Marks</h3>
+        <h2>{{ average_marks | default(0, true) }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Total Predictions</h3>
+        <h2>{{ total_predictions | default(0, true) }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Average Predicted Marks</h3>
+        <h2>{{ average_prediction | default(0, true) }}</h2>
+    </div>
+</div>
+
+<div class="card best-card">
+    <h3>Best Performing Model</h3>
+    <h2>{{ best_model | default("Not Available", true) }}</h2>
+</div>
+
+<div class="chart-grid">
+    <div class="chart-box">
+        <h2>Model MAE Comparison</h2>
+        <canvas id="maeChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+        <h2>Model R² Comparison</h2>
+        <canvas id="r2Chart"></canvas>
+    </div>
+</div>
+
+<div class="table-box">
+    <h2>Recent Student Predictions</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Predicted Marks</th>
+                <th>Performance</th>
+                <th>Model</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in recent | default([], true) %}
+            <tr>
+                <td>{{ item.student_name | default("—", true) }}</td>
+                <td>{{ item.predicted_marks | default("—", true) }}</td>
+                <td>{{ item.performance | default("—", true) }}</td>
+                <td>{{ item.model_used | default("—", true) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No predictions available yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // These keys must match the dictionaries passed by the Flask route.
+    const results = {{ results | default([], true) | tojson }};
+
+    const modelNames = results.map(item => item.Model);
+    const maeValues = results.map(item => item.MAE);
+    const r2Values = results.map(item => item.R2);
+
+    const chartColors = ["#5578bd", "#e5a45c", "#55a78a"];
+
+    const maeCanvas = document.getElementById("maeChart");
+
+    if (maeCanvas) {
+        new Chart(maeCanvas, {
+            type: "bar",
+            data: {
+                labels: modelNames,
+                datasets: [{
+                    label: "Mean Absolute Error",
+                    data: maeValues,
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "MAE"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const r2Canvas = document.getElementById("r2Chart");
+
+    if (r2Canvas) {
+        new Chart(r2Canvas, {
+            type: "bar",
+            data: {
+                labels: modelNames,
+                datasets: [{
+                    label: "R² Score",
+                    data: r2Values,
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: "R² Score"
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}
